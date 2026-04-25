@@ -21,13 +21,11 @@ variable "vmid" {
 	description = "Starting ID for the CTs"
 }
 
-
 variable "hostnames" {
   description = "Containers to be created"
   type        = list(string)
   default     = ["prod-ct", "test-ct", "dev-ct"]
 }
-
 
 variable "rootfs_size" {
 	description = "Root filesystem size in GB"

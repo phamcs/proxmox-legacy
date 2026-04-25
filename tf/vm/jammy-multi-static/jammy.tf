@@ -8,9 +8,10 @@ resource "proxmox_vm_qemu" "jammy" {
   agent = 1
   agent_timeout = 600
   os_type = "cloud-init"
-  cpu { cores = 4 }
-  #sockets = 1
-  #cpu = "host"
+  cpu {
+    cores = 4
+    sockets = 1
+  }
   memory = 2048
   serial {
     id   = 0
@@ -22,7 +23,6 @@ resource "proxmox_vm_qemu" "jammy" {
   scsihw = "virtio-scsi-single"
   bootdisk = "scsi0"
   ipconfig0 = "ip=${var.ips[count.index]}/24,gw=${cidrhost(format("%s/24", var.ips[count.index]), 1)}"
-  #ipconfig0 = "ip=dhcp"
   sshkeys = file(var.ssh_keys["pub"])
 
   disks {
@@ -81,9 +81,4 @@ resource "proxmox_vm_qemu" "jammy" {
       working_dir = "../../../ansible/"
       command = "ansible-playbook -u ${var.user} --key-file ${var.ssh_keys["priv"]} -i ${var.ips[count.index]}, provision.yaml"
   }
-
-  #provisioner "local-exec" {
-  #    working_dir = "../../../ansible/"
-  #    command = "ansible-playbook -u ${var.user} --key-file ${var.ssh_keys["priv"]} -i ${var.ips[count.index]}, extras.yaml"
-  #}
 }

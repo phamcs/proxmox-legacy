@@ -1,6 +1,6 @@
-resource "proxmox_vm_qemu" "centos8" {
+resource "proxmox_vm_qemu" "centos-8" {
   count = 1
-  name = "centos8"
+  name = "centos-8"
   target_node = var.proxmox_host
 
   clone = var.template_name
