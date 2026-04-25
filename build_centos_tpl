@@ -1,0 +1,37 @@
+#!/bin/bash
+
+imageURL=https://cloud.centos.org/centos/8-stream/x86_64/images/CentOS-Stream-GenericCloud-8-latest.x86_64.qcow2
+imageName="CentOS-Stream-GenericCloud-8-latest.x86_64.qcow2.img"
+volumeName="local-lvm"
+vmid="888"
+templateName="centos8-tpl"
+tmp_cores="2"
+tmp_memory="2048"
+rootPasswd="Letmein123"
+cpuTypeRequired="qemu64"
+
+apt update && apt install libguestfs-tools -y
+qm destroy $vmid
+wget -O $imageName $imageURL
+virt-customize -a $imageName --run-command "sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*"
+virt-customize -a $imageName --run-command "sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*"
+virt-customize -a $imageName --run-command 'dnf -y clean all && dnf makecache'
+virt-customize -a $imageName --install cloud-init,qemu-guest-agent,openssh,python3.9
+virt-customize -a $imageName --root-password password:$rootPasswd
+virt-customize -a $imageName --run-command 'dnf -y clean all && cloud-init clean && echo -n > /etc/machine-id && echo -n > /var/lib/dbus/machine-id && sync'
+qm create $vmid --name $templateName --memory $tmp_memory --cores $tmp_cores --net0 virtio,bridge=vmbr0
+qm importdisk $vmid $imageName $volumeName
+qm set $vmid --scsihw virtio-scsi-single --scsi0 $volumeName:vm-$vmid-disk-0,cache=writeback,discard=on,ssd=1
+qm set $vmid --boot c --bootdisk scsi0
+qm set $vmid --ide2 $volumeName:cloudinit
+qm set $vmid --serial0 socket --vga serial0
+qm set $vmid --cicustom "user=local:snippets/cloudinit-centos.yaml,network=local:snippets/cloudinit-network.yaml"
+qm set $vmid --sshkeys /root/cloud/authorized_keys
+qm set $vmid --cpu cputype=$cpuTypeRequired
+qm set $vmid --ostype l26
+qm set $vmid --balloon 2048
+qm set $vmid --ciupgrade 1
+qm set $vmid --ciuser centos
+qm set $vmid --ipconfig0 ip=dhcp
+qm template $vmid
+rm -f $imageName

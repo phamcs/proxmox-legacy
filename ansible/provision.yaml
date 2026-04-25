@@ -1,0 +1,109 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    # Debian/Ubuntu Upgrade
+    - name: Update and upgrade apt packages
+      become: yes
+      ignore_errors: yes
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400 #One day
+        autoremove: yes
+      register: apt_update_result
+      failed_when:
+        - apt_update_result.rc != 0
+        - "'FAILED' in apt_update_result.stderr"
+      when: ansible_facts['os_family'] == 'Debian' or ansible_facts['os_family'] == 'Ubuntu'
+
+    # RHEL/CentOS/Rocky Upgrade
+    - name: Update and upgrade dnf packages
+      become: yes
+      ignore_errors: yes
+      dnf:
+        name: "*"
+        state: latest
+        update_cache: yes
+        use_backend: dnf4
+      register: _gbt_packages_update_output
+      failed_when:
+        - "'transaction error' in _gbt_packages_update_output.stderr"
+      when: ansible_facts['os_family'] == 'Redhat' or ansible_facts['os_family'] == 'Rocky'
+
+    - name: Check for reboot-required file
+      ansible.builtin.stat:
+        path: /var/run/reboot-required
+      register: reboot_required_file
+
+    - name: Reboot with 10-minute timeout
+      reboot:
+        reboot_timeout: 600
+      when: reboot_required_file.stat.exists == true
+
+    - name: Make sure we have a 'wheel' group
+      group:
+        name: wheel
+        state: present
+
+    - name: Allow 'wheel' group to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: Add sudoers users to wheel group
+      user:
+        name: ansible
+        groups: wheel
+        append: yes
+        state: present
+        createhome: yes
+        shell: /bin/bash
+
+    - name: Create necessary folders
+      file:
+        path: "{{ item }}"
+        recurse: yes
+        state: directory
+      with_items:
+        - /home/ansible/.ssh/
+
+    - name: Copy Secured SSHD Configuration
+      copy: src=sshd_config_secured dest=/etc/ssh/sshd_config owner=root group=root mode=0644
+      #sudo: yes
+
+    - name: Disable IPv6
+      sysctl:
+        name: "{{ item }}"
+        value: '1'
+        sysctl_set: yes
+        state: present
+      with_items:
+        - net.ipv6.conf.all.disable_ipv6
+        - net.ipv6.conf.default.disable_ipv6
+        - net.ipv6.conf.lo.disable_ipv6
+
+    - name: SSHD Restart
+      service: name=sshd state=restarted enabled=yes
+        #sudo: yes
+
+    - name: Copy keys and profiles
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: ansible
+        group: ansible
+        mode: 0400
+      with_items:
+        - { src: 'authorized_keys', dest: '/home/ansible/.ssh/authorized_keys' }
+
+    - name: Apt Clean Up packages
+      command: apt autoremove -y
+      when: ansible_facts['os_family'] == "Debian" or ansible_facts['os_family'] == "Ubuntu"
+
+    - name: DNF Clean Up packages
+      command: dnf clean all -y
+      when: ansible_facts['os_family'] == "RedHat" or ansible_facts['os_family'] == "Rocky"
