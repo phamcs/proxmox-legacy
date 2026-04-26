@@ -5,7 +5,7 @@ resource "proxmox_vm_qemu" "centos-8" {
   target_node = var.proxmox_host
 
   clone = var.template_name
-  vmid = var.vmid
+  vmid = var.vmid + count.index
   agent = 1
   agent_timeout = 600
   os_type = "cloud-init"

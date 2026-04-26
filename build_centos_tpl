@@ -16,7 +16,7 @@ wget -O $imageName $imageURL
 virt-customize -a $imageName --run-command "sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*"
 virt-customize -a $imageName --run-command "sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*"
 virt-customize -a $imageName --run-command 'dnf -y clean all && dnf makecache'
-virt-customize -a $imageName --install cloud-init,qemu-guest-agent,openssh,python3.9
+virt-customize -a $imageName --install cloud-init,qemu-guest-agent,openssh,python3.11,python3-dnf
 virt-customize -a $imageName --root-password password:$rootPasswd
 virt-customize -a $imageName --run-command 'dnf -y clean all && cloud-init clean && echo -n > /etc/machine-id && echo -n > /var/lib/dbus/machine-id && sync'
 qm create $vmid --name $templateName --memory $tmp_memory --cores $tmp_cores --net0 virtio,bridge=vmbr0
