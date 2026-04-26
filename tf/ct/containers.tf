@@ -23,7 +23,7 @@ resource "proxmox_lxc" "basic" {
     key = "1"
     slot = 0
     storage = "local-lvm"
-    mp = "/mnt/LOCAL1TB/images"
+    mp = "/srv"
     size = "20G" #this is required
   }
 

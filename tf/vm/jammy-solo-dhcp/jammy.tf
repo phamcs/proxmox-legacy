@@ -1,3 +1,4 @@
+# Single VM Provision
 resource "proxmox_vm_qemu" "jammy" {
   count = 1
   name = "jammy"

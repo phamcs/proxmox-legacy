@@ -27,9 +27,9 @@ On the pve host:
 1. `pick the provide script to build the template of your choice`
 2. `Add the cloudinit-config.yml to the snippets directory on your proxmox host`
 ```
-build_jammy_tpl: Build Ubuntu Jammy Template
-build_centos_tpl: Build CentOS 8 Template
+build_jammy_tpl: Build Ubuntu Jammy template
+build_centos_tpl: Build CentOS 8 template
 ```
 ### TO DO:
 
-1.  Need to add code to fetch credentials from vault
+~~1.  Need to add code to fetch credentials from vault~~

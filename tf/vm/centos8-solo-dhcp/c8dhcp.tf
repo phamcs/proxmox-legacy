@@ -1,3 +1,4 @@
+# Single VM Provision
 resource "proxmox_vm_qemu" "centos-8" {
   count = 1
   name = "centos-8"

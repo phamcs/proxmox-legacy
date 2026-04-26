@@ -8,13 +8,11 @@ variable "proxmox_host" {
     default = "SERVER-1"
 }
 
-variable "token_id" {
-  default = "terraform-prov@pve!automation"
+variable "vault_address" {
+  default = "https://vault.superasian.net"
 }
 
-variable "token_secret" {
-  default = "f41e83c8-cc4e-4482-adc2-c5bf43a351a0" # Enter your API Secret here
-}
+variable "vault_token" {}
 
 variable "vmid" {
 	default     = 500
