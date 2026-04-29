@@ -1,11 +1,11 @@
 variable "api_url" {
     # The Proxmox Web UI address, with /api2/json added to it.
-    default = "https://10.0.0.25:8006/api2/json"
+    default = "https://10.0.0.33:8006/api2/json"
 }
 
 variable "proxmox_host" {
     # The name of the Proxmox server listed under Datacenter
-    default = "SERVER-1"
+    default = "SERVER-3"
 }
 
 variable "vault_address" {

@@ -13,7 +13,7 @@ resource "proxmox_lxc" "basic" {
   start = "true"
 
   rootfs {
-    storage = "local-lvm"
+    storage = "local-zfs"
     size = var.rootfs_size
   }
   swap = 0
@@ -22,7 +22,7 @@ resource "proxmox_lxc" "basic" {
   mountpoint {
     key = "1"
     slot = 0
-    storage = "local-lvm"
+    storage = "local-zfs"
     mp = "/srv"
     size = "20G" #this is required
   }

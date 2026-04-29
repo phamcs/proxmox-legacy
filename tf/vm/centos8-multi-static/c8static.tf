@@ -29,7 +29,7 @@ resource "proxmox_vm_qemu" "centos-8" {
     ide {
       ide2 {
         cloudinit {
-          storage = "local-lvm"
+          storage = "local-zfs"
         }
       }
     }
@@ -42,7 +42,7 @@ resource "proxmox_vm_qemu" "centos-8" {
           iothread = false
           replicate = false
           size = "20G"
-          storage = "local-lvm"
+          storage = "local-zfs"
         }
       }
     }
