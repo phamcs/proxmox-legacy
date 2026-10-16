@@ -41,7 +41,7 @@ resource "proxmox_vm_qemu" "jammy" {
           discard = true
           iothread = false
           replicate = false
-          size = "10G"
+          size = "200G"
           storage = "local-zfs"
         }
       }
