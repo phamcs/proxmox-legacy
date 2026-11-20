@@ -29,7 +29,7 @@ resource "proxmox_vm_qemu" "jammy" {
     ide {
       ide2 {
         cloudinit {
-          storage = "local-zfs"
+          storage = "local-lvm"
         }
       }
     }
@@ -41,8 +41,8 @@ resource "proxmox_vm_qemu" "jammy" {
           discard = true
           iothread = false
           replicate = false
-          size = "200G"
-          storage = "local-zfs"
+          size = "10G"
+          storage = "local-lvm"
         }
       }
     }
