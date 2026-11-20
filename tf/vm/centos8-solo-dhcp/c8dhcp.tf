@@ -13,7 +13,7 @@ resource "proxmox_vm_qemu" "centos-8" {
     cores = 4
     sockets = 1
   }
-  memory = 2048
+  memory = 4096
   serial {
     id   = 0
     type = "socket"
